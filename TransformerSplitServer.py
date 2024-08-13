@@ -11,7 +11,7 @@ TransformerSplitServer:
 
 Usage:
 ------
-Run with `python script_name.py --split_model_file_name "/path/to/model.pth" --host "0.0.0.0" --port 8765 --device "cuda"`.
+Run with `python script_name.py --split_model_file_path "/path/to/model.pth" --host "0.0.0.0" --port 8765 --device "cuda"`.
 
 """
 
@@ -27,8 +27,10 @@ class TransformerSplitServer:
     def __init__(self, split_model_file_path, host='0.0.0.0', port=8765, device='cuda'):
         self.host = host
         self.port = port
-        self.transformer_split = self._load_model(split_model_file_path)
         self.device = device
+        
+        self.transformer_split = self._load_model(split_model_file_path)
+        
 
 
     def _load_model(self, split_model_file_path):
@@ -36,6 +38,8 @@ class TransformerSplitServer:
         model_path will consist of a file that holds transfomer blocks and required state dicts
         '''
         transformer_split = torch.load(split_model_file_path)
+
+        print(type(transformer_split), self.device)
 
         return transformer_split.to(self.device).half()
 
@@ -92,13 +96,13 @@ def main():
     parser.add_argument('--host', type=str, default='0.0.0.0', help="Host IP address to bind the server (default: 0.0.0.0)")
     parser.add_argument('--port', type=int, default=8765, help="Port number to bind the server (default: 8765)")
     parser.add_argument('--device', type=str, default='cuda', help="Device to load the model onto (default: cuda)")
-    parser.add_argument('--split_model_file_name', type=str, required=True, help="Path to the split transformer model file")
+    parser.add_argument('--split_model_file_path', type=str, required=True, help="Path to the split transformer model file")
 
     args = parser.parse_args()
 
     # Initialize the Transformer Split Server
     server = TransformerSplitServer(
-        model_id=args.split_model_file_name,
+        split_model_file_path=args.split_model_file_path,
         host=args.host,
         port=args.port,
         device=args.device
