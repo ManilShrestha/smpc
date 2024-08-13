@@ -15,8 +15,6 @@ The script can be executed from the command line with configurable options:
 - --split_end: The ending index for the transformer block split (default: 23).
 - --output_file: The path where the split model will be saved (required).
 - --has_last_block: Indicates whether this block split contains the last block of the transformer.
-Example
-To split a transformer model and save the split to a file:
 
 `python TransformerSplitFactory.py --output_file "/path/to/output/file.pth" --split_start 1 --split_end 11`
 
