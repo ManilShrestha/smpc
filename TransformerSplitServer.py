@@ -11,7 +11,7 @@ TransformerSplitServer:
 
 Usage:
 ------
-Run with `python script_name.py --split_model_file_path "/path/to/model.pth" --host "0.0.0.0" --port 8765 --device "cuda"`.
+Run with `python TransformerSplitServer.py --split_model_file_path "/path/to/model.pth" --host "0.0.0.0" --port 8765 --device "cuda"`.
 
 """
 
@@ -28,7 +28,6 @@ class TransformerSplitServer:
         self.host = host
         self.port = port
         self.device = device
-        
         self.transformer_split = self._load_model(split_model_file_path)
         
 
