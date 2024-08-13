@@ -5,9 +5,9 @@ To run the scripts, the diffusers library has been customized to be compatible w
 
 1. Uninstall base diffusers: `pip uninstall diffusers`
 2. Install customized diffuser from: https://github.com/ManilShrestha/diffusers
-   - git clone https://github.com/ManilShrestha/diffusers
-   - cd diffusers
-   - pip install -e .
+   - `git clone https://github.com/ManilShrestha/diffusers`
+   - `cd diffusers`
+   - `pip install -e .`
 
 
 ## TransformerSplitFactory.py
