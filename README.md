@@ -1,5 +1,15 @@
 # smpc
 
+## Pre-requisite
+To run the scripts, the diffusers library has been customized to be compatible with the split transformer logic. Follow these steps:
+
+1. Uninstall base diffusers: `pip uninstall diffusers`
+2. Install customized diffuser from: https://github.com/ManilShrestha/diffusers
+   - git clone https://github.com/ManilShrestha/diffusers
+   - cd diffusers
+   - pip install -e .
+
+
 ## TransformerSplitFactory.py
 **Overview**
 
