@@ -21,6 +21,7 @@ import torch
 import struct
 from diffusers.models.transformers.transformer_sd3_split import SD3Transformer2DModelServerSplit
 import argparse
+import traceback, time
 
 
 class TransformerSplitServer:
@@ -30,7 +31,6 @@ class TransformerSplitServer:
         self.device = device
         self.transformer_split = self._load_model(split_model_file_path)
         
-
 
     def _load_model(self, split_model_file_path):
         '''
@@ -44,49 +44,75 @@ class TransformerSplitServer:
 
 
     def handle_client(self, client_socket):
-        # Receive the size of the data
-        data_size = struct.unpack('>I', client_socket.recv(4))[0]
 
-        # Now receive the data itself
-        chunks = []
-        bytes_recd = 0
-        while bytes_recd < data_size:
-            chunk = client_socket.recv(min(data_size - bytes_recd, 2048))
-            if chunk == b'':
-                raise RuntimeError("socket connection broken")
-            chunks.append(chunk)
-            bytes_recd = bytes_recd + len(chunk)
-        data = b''.join(chunks)
+        try:
+            # Receive the size of the data
+            data_size = struct.unpack('>I', client_socket.recv(4))[0]
 
-        input_data = pickle.loads(data)
+            # Now receive the data itself
+            chunks = []
+            bytes_recd = 0
+            while bytes_recd < data_size:
+                chunk = client_socket.recv(min(data_size - bytes_recd, 2048))
+                if chunk == b'':
+                    raise RuntimeError("socket connection broken")
+                chunks.append(chunk)
+                bytes_recd = bytes_recd + len(chunk)
+            data = b''.join(chunks)
 
-        # Unpack the input
-        hidden_states, encoder_hidden_states, temb, h, w = input_data
+            input_data = pickle.loads(data)
 
-        hidden_states = hidden_states.to(self.device).half()
-        encoder_hidden_states = encoder_hidden_states.to(self.device).half()
-        temb = temb.to(self.device).half()
+            # Unpack the input
+            hidden_states, encoder_hidden_states, temb, h, w = input_data
 
-        # Run the model
-        output = self.transformer_split(hidden_states, encoder_hidden_states, temb, h, w)
+            hidden_states = hidden_states.to(self.device).half()
+            encoder_hidden_states = encoder_hidden_states.to(self.device).half()
+            temb = temb.to(self.device).half()
 
-        # Send back the result
-        result = pickle.dumps(output)
-        result_size = len(result)
-        client_socket.sendall(struct.pack('>I', result_size))
-        client_socket.sendall(result)
-        client_socket.close()
+            # Run the model
+            output = self.transformer_split(hidden_states, encoder_hidden_states, temb, h, w)
+
+            # Send back the result
+            result = pickle.dumps(output)
+            result_size = len(result)
+            client_socket.sendall(struct.pack('>I', result_size))
+            client_socket.sendall(result)
+        except Exception as e:
+            print(f"Error handling client: {e}")
+        
+        finally:
+            client_socket.close()
 
     def start_server(self):
-        server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        server.bind((self.host, self.port))
-        server.listen(5)
-        print(f"Server for transformer_split listening on {self.host}:{self.port}")
-
         while True:
-            client_socket, addr = server.accept()
-            print(f"Accepted connection from {addr}")
-            self.handle_client(client_socket)
+            try:
+                with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as server:
+                    server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+                    server.bind((self.host, self.port))
+                    server.listen(5)
+                    print(f"Server for transformer_split listening on {self.host}:{self.port}")
+
+                    while True:
+                        client_socket, addr = server.accept()
+                        print(f"Accepted connection from {addr}")
+                        self.handle_client(client_socket)
+                # server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                # server.bind((self.host, self.port))
+                # server.listen(5)
+                # print(f"Server for transformer_split listening on {self.host}:{self.port}")
+
+                # while True:
+                #     client_socket, addr = server.accept()
+                #     print(f"Accepted connection from {addr}")
+                #     self.handle_client(client_socket)
+
+            except Exception as e:
+                print(f"Server error: {e}")
+                print("Traceback:")
+                traceback.print_exc()
+                # print(f"Server encountered an error: {e}. Restarting...")
+                # time.sleep(5)
+                # self._load_model()
 
 
 def main():
