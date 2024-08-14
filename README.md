@@ -15,7 +15,7 @@ To run the scripts, the diffusers library has been customized to be compatible w
 
 TransformerSplitFactory.py is a script designed to split a transformer model from the Stable Diffusion 3 pipeline into specific blocks and save the resulting model to a specified output file. This allows you to distribute parts of the transformer model across different machines or processes.
 
-This is run by the owner of model to distribute the blocks of transformers to the distributed servers.
+_**This is run by the owner of model to distribute the blocks of transformers to the distributed servers.**_
 
 **Usage**
 The script can be executed from the command line with configurable options:
@@ -34,7 +34,7 @@ The script can be executed from the command line with configurable options:
 
 TransformerSplitServer.py is a script that implements a server to load a pre-split transformer model and process client requests for inference. 
 
-This is intended to be run by the distribute hosts with the model file provided to them.
+_**This is intended to be run by the distributed hosts using the model file provided to them.**_
 
 
 **Usage**
