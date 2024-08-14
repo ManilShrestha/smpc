@@ -30,6 +30,7 @@ class TransformerSplitServer:
         self.port = port
         self.device = device
         self.transformer_split = self._load_model(split_model_file_path)
+        self.transformer_split.eval()
         
 
     def _load_model(self, split_model_file_path):
@@ -63,20 +64,22 @@ class TransformerSplitServer:
             input_data = pickle.loads(data)
 
             # Unpack the input
-            hidden_states, encoder_hidden_states, temb, h, w = input_data
+            with torch.no_grad():
+                hidden_states, encoder_hidden_states, temb, h, w = input_data
 
-            hidden_states = hidden_states.to(self.device).half()
-            encoder_hidden_states = encoder_hidden_states.to(self.device).half()
-            temb = temb.to(self.device).half()
+                hidden_states = hidden_states.to(self.device).half()
+                encoder_hidden_states = encoder_hidden_states.to(self.device).half()
+                temb = temb.to(self.device).half()
 
-            # Run the model
-            output = self.transformer_split(hidden_states, encoder_hidden_states, temb, h, w)
+                # Run the model
+                output = self.transformer_split(hidden_states, encoder_hidden_states, temb, h, w)
 
             # Send back the result
             result = pickle.dumps(output)
             result_size = len(result)
             client_socket.sendall(struct.pack('>I', result_size))
             client_socket.sendall(result)
+
         except Exception as e:
             print(f"Error handling client: {e}")
         
@@ -96,23 +99,11 @@ class TransformerSplitServer:
                         client_socket, addr = server.accept()
                         print(f"Accepted connection from {addr}")
                         self.handle_client(client_socket)
-                # server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                # server.bind((self.host, self.port))
-                # server.listen(5)
-                # print(f"Server for transformer_split listening on {self.host}:{self.port}")
-
-                # while True:
-                #     client_socket, addr = server.accept()
-                #     print(f"Accepted connection from {addr}")
-                #     self.handle_client(client_socket)
 
             except Exception as e:
                 print(f"Server error: {e}")
                 print("Traceback:")
                 traceback.print_exc()
-                # print(f"Server encountered an error: {e}. Restarting...")
-                # time.sleep(5)
-                # self._load_model()
 
 
 def main():
