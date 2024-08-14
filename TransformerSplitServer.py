@@ -77,6 +77,7 @@ class TransformerSplitServer:
             result_size = len(result)
             client_socket.sendall(struct.pack('>I', result_size))
             client_socket.sendall(result)
+
         except Exception as e:
             print(f"Error handling client: {e}")
         
@@ -96,23 +97,11 @@ class TransformerSplitServer:
                         client_socket, addr = server.accept()
                         print(f"Accepted connection from {addr}")
                         self.handle_client(client_socket)
-                # server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                # server.bind((self.host, self.port))
-                # server.listen(5)
-                # print(f"Server for transformer_split listening on {self.host}:{self.port}")
-
-                # while True:
-                #     client_socket, addr = server.accept()
-                #     print(f"Accepted connection from {addr}")
-                #     self.handle_client(client_socket)
 
             except Exception as e:
                 print(f"Server error: {e}")
                 print("Traceback:")
                 traceback.print_exc()
-                # print(f"Server encountered an error: {e}. Restarting...")
-                # time.sleep(5)
-                # self._load_model()
 
 
 def main():
