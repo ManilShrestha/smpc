@@ -60,7 +60,8 @@ class TransformerSplitServer:
                 chunks.append(chunk)
                 bytes_recd = bytes_recd + len(chunk)
             data = b''.join(chunks)
-
+            # print(f'Received:{len(data)}')
+                  
             input_data = pickle.loads(data)
 
             # Unpack the input
@@ -77,6 +78,7 @@ class TransformerSplitServer:
             # Send back the result
             result = pickle.dumps(output)
             result_size = len(result)
+            # print(f'{result_size} bytes')
             client_socket.sendall(struct.pack('>I', result_size))
             client_socket.sendall(result)
 
@@ -84,6 +86,8 @@ class TransformerSplitServer:
             print(f"Error handling client: {e}")
         
         finally:
+            del hidden_states, encoder_hidden_states, temb, output
+            torch.cuda.empty_cache()
             client_socket.close()
 
     def start_server(self):
