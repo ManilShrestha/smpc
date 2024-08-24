@@ -74,6 +74,13 @@ class LlamaTransformerSplitServer:
                 past_key_values = past_key_values.to(self.device).half()
                 cache_position = cache_position.to(self.device).half()
 
+            if causal_mask is not None:
+                    causal_mask = causal_mask.to(self.device).half()
+                
+            if position_embeddings is not None:
+                # position_embeddings = position_embeddings.to(self.device).half()
+                position_embeddings = tuple(tensor.to(self.device).half() for tensor in position_embeddings)
+
 
                 # Run the model
                 for decoder_layer in self.transformer_layers_split:
