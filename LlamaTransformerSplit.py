@@ -39,7 +39,7 @@ def main():
     parser = argparse.ArgumentParser(description="Split the llama transformer decoder layers and save the parts to a file.")
     default_llama_model = "/storage/yr82@drexel.edu/Meta-Llama-3.1-8B"
     # Arguments for model path, split indices, and output file
-    parser.add_argument("--model_id", type=str, default=default_sd3_model, help="Path to the pre-trained model or model ID")
+    parser.add_argument("--model_id", type=str, default=default_llama_model, help="Path to the pre-trained model or model ID")
     parser.add_argument("--split_idx", type=int, default=15, help="Index to indicate how many decoder layer each split needs to contain.")
     parser.add_argument("--output_file_1", type=str, required=True, help="Path to the output file where the first split model will be saved")
     parser.add_argument("--output_file_2", type=str, required=True, help="Path to the output file where the second split model will be saved")
