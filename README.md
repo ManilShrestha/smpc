@@ -20,13 +20,24 @@ _**This is run by the owner of model to distribute the blocks of transformers to
 **Usage**
 The script can be executed from the command line with configurable options:
 
-- --model_id: Path to the pre-trained model or model ID (default: a specific Stable Diffusion 3 model path).
-- --split_start: The starting index for the transformer block split (default: 0).
-- --split_end: The ending index for the transformer block split (default: 23).
-- --output_file: The path where the split model will be saved (required).
-- --has_last_block: Indicates whether this block split contains the last block of the transformer.
+- --model_id          : Path to the pre-trained model or model ID (default: a specific SD3 model path).
+- --split_mode        : Split for 'client' or 'server' (default: 'server')
+- --split_start       : Starting index for the transformer block split (default: 0).
+- --split_end         : Ending index for the transformer block split (default: 23).
+- --output_file       : Path to the output file where the split model will be saved (required).
+- --last_block        : Does this block split contain the last block of the transformer (optional)
 
-`python TransformerSplitFactory.py --output_file "/path/to/output/file.pth" --split_start 1 --split_end 11`
+
+Example:
+--------
+For server split:
+
+    python TransformerSplitFactory.py --split_mode "server" --output_file "/path/to/output/file.pth" --split_start 1 --split_end 11
+    
+For client split:
+
+    python TransformerSplitFactory.py --split_mode "client" --output_file "/path/to/output/file.pth" --has_last_block True
+
 
 
 ## TransformerSplitServer.py
