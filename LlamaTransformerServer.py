@@ -81,29 +81,33 @@ class LlamaTransformerSplitServer:
                 # position_embeddings = position_embeddings.to(self.device).half()
                 position_embeddings = tuple(tensor.to(self.device).half() for tensor in position_embeddings)
 
-
-                # Run the model
-                for decoder_layer in self.transformer_layers_split:
-
-                    layer_outputs = decoder_layer(
-                        hidden_states,
-                        attention_mask=causal_mask,
-                        position_ids=position_ids,
-                        past_key_value=past_key_values,
-                        output_attentions=output_attentions,
-                        use_cache=use_cache,
-                        cache_position=cache_position,
-                        position_embeddings=position_embeddings,
-                    )
+            # Handle the kv cache
+            past_key_values.key_cache = [tensor.to(self.device).half() for tensor in past_key_values.key_cache]
+            past_key_values.value_cache = [tensor.to(self.device).half() for tensor in past_key_values.value_cache]
 
 
-                    hidden_states = layer_outputs[0]
+            # Run the model
+            for decoder_layer in self.transformer_layers_split:
 
-                    if use_cache:
-                        next_decoder_cache = layer_outputs[2 if output_attentions else 1]
+                layer_outputs = decoder_layer(
+                    hidden_states,
+                    attention_mask=causal_mask,
+                    position_ids=position_ids,
+                    past_key_value=past_key_values,
+                    output_attentions=output_attentions,
+                    use_cache=use_cache,
+                    cache_position=cache_position,
+                    position_embeddings=position_embeddings,
+                )
 
 
-                output = (hidden_states, next_decoder_cache, past_key_values)
+                hidden_states = layer_outputs[0]
+
+                if use_cache:
+                    next_decoder_cache = layer_outputs[2 if output_attentions else 1]
+
+
+            output = (hidden_states, next_decoder_cache, past_key_values)
 
                 
 
