@@ -1,4 +1,6 @@
-# smpc
+# SMPC
+Paper URL: https://arxiv.org/pdf/2409.19120
+<img width="815" alt="image" src="https://github.com/user-attachments/assets/3f2186be-f228-4af9-8747-2e36a8221822" />
 
 ## Pre-requisite
 To run the scripts, the diffusers library has been customized to be compatible with the split transformer logic. Follow these steps:
